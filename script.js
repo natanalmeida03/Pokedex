@@ -4,24 +4,35 @@ const pokemonImg = document.getElementById("pokemon-img");
 
 let searchPokemon = "1";
 const requestPokemon = async (search) => {
+  let json;
   try {
     const r = await fetch(`https://pokeapi.co/api/v2/pokemon/${search}`);
-    const json = await r.json();
-    return json;
+
+    if (r.status === 404) showNotFoundAlert();
+
+    json = await r.json();
   } catch (error) {
-    console.log(error);
+    if (error instanceof SyntaxError) {
+      console.log("There was a SyntaxError", error);
+    } else {
+      console.log("There was an error", error);
+    }
+
     return null;
   }
+  if (json) return json;
+};
+
+const showNotFoundAlert = () => {
+  alert("Pokemon não encontrado");
 };
 
 const renderPokemon = async (p) => {
   // pokemonName.innerHTML = "carregando...";
 
   const data = await requestPokemon(p);
-  if (data === null) {
-    alert(`Pokemon '${p}' não encontrado`);
-    return;
-  }
+  if (data === null) return;
+
   pokemonImg.style.display = "none";
 
   pokemonName.innerHTML = `${data.id} - ${data.name}`;
